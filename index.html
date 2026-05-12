@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#050505" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="P1ST0N 10%" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <title>The Piston Club — 10% Off Voucher</title>
+
+  <style>
+    :root {
+      --black: #050505;
+      --gold: #f5c542;
+      --brass: #B0914A;
+      --cream: #fff4d6;
+      --white: #fffaf0;
+      --muted: rgba(255, 248, 232, 0.78);
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html,
+    body {
+      margin: 0;
+      width: 100%;
+      min-height: 100%;
+      background: #000;
+      color: var(--white);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      overflow: hidden;
+    }
+
+    body {
+      min-height: 100svh;
+      display: grid;
+      place-items: center;
+      background: #000;
+    }
+
+    body.voucher-expired .voucher-screen,
+    body.voucher-expired .install-prompt,
+    body.voucher-expired .tap-hint {
+      display: none !important;
+    }
+
+    .voucher-screen {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: calc(6px + var(--safe-top)) 6px calc(6px + var(--safe-bottom));
+      background: #000;
+    }
+
+    .voucher-frame {
+      width: min(100vw, calc(100svh * 0.667));
+      height: min(100svh, calc(100vw * 1.499));
+      display: grid;
+      place-items: center;
+      background: #000;
+    }
+
+    .voucher-image {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: contain;
+      background: #000;
+      user-select: none;
+      -webkit-user-drag: none;
+      pointer-events: none;
+    }
+
+    .install-prompt {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      display: grid;
+      justify-items: center;
+      align-items: end;
+      padding: calc(18px + var(--safe-top)) 16px calc(clamp(92px, 22svh, 210px) + var(--safe-bottom));
+      background: rgba(0, 0, 0, 0.12);
+    }
+
+    .install-prompt.hidden {
+      display: none !important;
+    }
+
+    .install-card {
+      width: min(100%, 420px);
+      border-radius: 26px;
+      border: 1px solid rgba(176, 145, 74, 0.62);
+      background:
+        linear-gradient(135deg, rgba(176, 145, 74, 0.24), transparent 42%),
+        rgba(18, 18, 18, 0.94);
+      backdrop-filter: blur(8px);
+      box-shadow: 0 28px 80px rgba(0, 0, 0, 0.72);
+      padding: 18px;
+      display: grid;
+      gap: 14px;
+      text-align: left;
+    }
+
+    .install-head {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .install-title {
+      display: grid;
+      gap: 5px;
+    }
+
+    .install-title h1 {
+      margin: 0;
+      font-size: 25px;
+      line-height: 1.02;
+      text-transform: uppercase;
+      letter-spacing: -0.04em;
+    }
+
+    .install-title p,
+    .install-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.42;
+    }
+
+    .close-button {
+      width: 40px;
+      height: 40px;
+      flex: 0 0 auto;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--white);
+      font-size: 24px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .save-button {
+      appearance: none;
+      width: 100%;
+      min-height: 54px;
+      border: 0;
+      border-radius: 17px;
+      background: var(--gold);
+      color: #111;
+      font: inherit;
+      font-weight: 950;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 12px 24px rgba(245, 197, 66, 0.16);
+      cursor: pointer;
+    }
+
+    .save-button:active,
+    .close-button:active {
+      transform: translateY(1px);
+    }
+
+    .instruction-box {
+      display: grid;
+      gap: 9px;
+      padding: 13px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .instruction-box.hidden {
+      display: none !important;
+    }
+
+    .instruction-box strong {
+      color: var(--cream);
+    }
+
+    .instruction-box ol {
+      margin: 0;
+      padding-left: 20px;
+      color: rgba(255, 248, 232, 0.84);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .tap-hint {
+      position: fixed;
+      z-index: 25;
+      pointer-events: none;
+      display: none;
+      color: var(--gold);
+      filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.9));
+      text-align: center;
+      font-weight: 950;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      font-size: 11px;
+    }
+
+    .tap-hint.show {
+      display: block;
+    }
+
+    .tap-hint.top-right {
+      top: calc(8px + var(--safe-top));
+      right: 12px;
+    }
+
+    .tap-hint.bottom-centre {
+      left: 50%;
+      bottom: calc(10px + var(--safe-bottom));
+      transform: translateX(-50%);
+    }
+
+    .arrow-pulse {
+      width: 76px;
+      height: 76px;
+      animation: pointPulse 900ms ease-in-out infinite;
+      display: block;
+      margin: 0 auto;
+    }
+
+    .hint-label {
+      display: block;
+      margin-top: 4px;
+      color: var(--cream);
+      text-shadow: 0 2px 8px #000;
+    }
+
+    .tap-hint.bottom-centre .arrow-pulse {
+      transform: rotate(180deg);
+      transform-origin: center;
+    }
+
+    @keyframes pointPulse {
+      0%, 100% { opacity: 0.65; translate: 0 0; }
+      50% { opacity: 1; translate: 0 8px; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="voucher-screen" aria-label="The Piston Club voucher">
+    <div class="voucher-frame">
+      <img
+        class="voucher-image"
+        src="piston-club-voucher.png"
+        alt="The Piston Club 10% off food and drink discount voucher. Discount code P1ST0N. Valid Monday to Friday until 30 November 2026."
+      />
+    </div>
+  </main>
+
+  <section class="install-prompt hidden" id="installPrompt" role="dialog" aria-modal="true" aria-label="Save voucher to home screen">
+    <div class="install-card">
+      <div class="install-head">
+        <div class="install-title">
+          <h1>Keep this voucher handy</h1>
+          <p id="installIntro">Save this voucher to your Home Screen so you can find it quickly next time you visit.</p>
+        </div>
+        <button class="close-button" id="closeInstallPrompt" type="button" aria-label="Close save prompt">×</button>
+      </div>
+
+      <button class="save-button" id="saveToHomeScreenButton" type="button">Save to Home Screen</button>
+
+      <div class="instruction-box hidden" id="instructionBox">
+        <strong id="instructionTitle">Save instructions</strong>
+        <ol id="instructionList"></ol>
+      </div>
+
+      <p id="installFootnote">Once saved, open it from your phone like a normal app and show the voucher to staff.</p>
+    </div>
+  </section>
+
+  <div class="tap-hint top-right" id="topRightHint" aria-hidden="true">
+    <svg class="arrow-pulse" viewBox="0 0 100 100" role="img">
+      <path d="M50 88 L50 25" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round" />
+      <path d="M25 50 L50 25 L75 50" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" />
+    </svg>
+    <span class="hint-label">Tap menu</span>
+  </div>
+
+  <div class="tap-hint bottom-centre" id="bottomHint" aria-hidden="true">
+    <svg class="arrow-pulse" viewBox="0 0 100 100" role="img">
+      <path d="M50 88 L50 25" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round" />
+      <path d="M25 50 L50 25 L75 50" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" />
+    </svg>
+    <span class="hint-label">Tap Share</span>
+  </div>
+
+  <script>
+    const OFFER = {
+      expiryIso: "2026-11-30T23:59:59+00:00"
+    };
+
+    const PROMPT_SEEN_KEY = "pistonClubVoucherHomeScreenPromptSeen";
+    const $ = (id) => document.getElementById(id);
+    const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const isIPadOS = navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1;
+    const isIos = isIOSDevice || isIPadOS;
+    const isSafari = /Safari/.test(navigator.userAgent) && !/CriOS|FxiOS|EdgiOS|OPiOS/.test(navigator.userAgent);
+    const isIosSafari = isIos && isSafari;
+    const isAndroid = /Android/.test(navigator.userAgent);
+    const isStandalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+    let deferredInstallPrompt = null;
+
+    function checkExpiry() {
+      if (new Date() > new Date(OFFER.expiryIso)) {
+        document.body.classList.add("voucher-expired");
+      }
+    }
+
+    function setInstructions(title, steps) {
+      $("instructionTitle").textContent = title;
+      $("instructionList").innerHTML = steps.map((step) => `<li>${step}</li>`).join("");
+      $("instructionBox").classList.remove("hidden");
+    }
+
+    function showHint(position) {
+      $("topRightHint").classList.remove("show");
+      $("bottomHint").classList.remove("show");
+      if (position === "top-right") $("topRightHint").classList.add("show");
+      if (position === "bottom") $("bottomHint").classList.add("show");
+    }
+
+    function hideHints() {
+      $("topRightHint").classList.remove("show");
+      $("bottomHint").classList.remove("show");
+    }
+
+    function closeInstallPrompt() {
+      $("installPrompt").classList.add("hidden");
+      hideHints();
+      localStorage.setItem(PROMPT_SEEN_KEY, "yes");
+    }
+
+    function shouldShowInstallPrompt() {
+      if (document.body.classList.contains("voucher-expired")) return false;
+      if (isStandalone) return false;
+      if (localStorage.getItem(PROMPT_SEEN_KEY) === "yes") return false;
+      return true;
+    }
+
+    function configureInstallPrompt() {
+      if (!shouldShowInstallPrompt()) return;
+      const intro = $("installIntro");
+      const footnote = $("installFootnote");
+      $("installPrompt").classList.remove("hidden");
+
+      if (isIosSafari) {
+        intro.textContent = "Save this voucher to your iPhone Home Screen so it opens like a mini app next time.";
+        footnote.textContent = "Tap the button below for the exact steps. The arrow will point to Safari’s Share button.";
+        setInstructions("Save to Home Screen on iPhone", [
+          "Tap the <strong>Share</strong> button in Safari.",
+          "Scroll down and tap <strong>Add to Home Screen</strong>.",
+          "Tap <strong>Add</strong>.",
+          "Next time, tap the Piston Club icon on your Home Screen."
+        ]);
+        showHint("bottom");
+        return;
+      }
+
+      if (isIos) {
+        intro.textContent = "To save this voucher on iPhone, open it in Safari first.";
+        footnote.textContent = "Apple only allows Home Screen saving from Safari.";
+        setInstructions("Open in Safari first", [
+          "Tap your browser menu.",
+          "Choose <strong>Open in Safari</strong> if available.",
+          "Then tap Safari’s <strong>Share</strong> button.",
+          "Tap <strong>Add to Home Screen</strong>."
+        ]);
+        showHint("top-right");
+        return;
+      }
+
+      if (isAndroid) {
+        intro.textContent = "Save this voucher to your Android Home Screen so it is easy to find next time.";
+        footnote.textContent = "If your browser supports app install, the button will open the install prompt automatically.";
+        showHint("top-right");
+        return;
+      }
+
+      intro.textContent = "Save this voucher to your device so it is easy to find whenever you visit.";
+      footnote.textContent = "Use your browser menu if the button does not open the install option automatically.";
+      showHint("top-right");
+    }
+
+    window.addEventListener("beforeinstallprompt", (event) => {
+      event.preventDefault();
+      deferredInstallPrompt = event;
+    });
+
+    $("closeInstallPrompt").addEventListener("click", closeInstallPrompt);
+
+    $("saveToHomeScreenButton").addEventListener("click", async () => {
+      localStorage.setItem(PROMPT_SEEN_KEY, "yes");
+
+      if (deferredInstallPrompt) {
+        deferredInstallPrompt.prompt();
+        await deferredInstallPrompt.userChoice;
+        deferredInstallPrompt = null;
+        closeInstallPrompt();
+        return;
+      }
+
+      if (isIosSafari) {
+        setInstructions("Save to Home Screen on iPhone", [
+          "Tap the <strong>Share</strong> button in Safari.",
+          "Scroll down and tap <strong>Add to Home Screen</strong>.",
+          "Tap <strong>Add</strong>.",
+          "Next time, tap the Piston Club icon on your Home Screen."
+        ]);
+        showHint("bottom");
+        return;
+      }
+
+      if (isIos) {
+        setInstructions("Open in Safari first", [
+          "Apple only allows Home Screen saving from Safari.",
+          "Open this voucher in Safari.",
+          "Tap the <strong>Share</strong> button.",
+          "Tap <strong>Add to Home Screen</strong>.",
+          "Tap <strong>Add</strong>."
+        ]);
+        showHint("top-right");
+        return;
+      }
+
+      if (isAndroid) {
+        setInstructions("Save to Home Screen on Android", [
+          "Tap your browser menu.",
+          "Tap <strong>Add to Home Screen</strong> or <strong>Install app</strong>.",
+          "Tap <strong>Add</strong> or <strong>Install</strong>.",
+          "Next time, tap the Piston Club icon on your Home Screen."
+        ]);
+        showHint("top-right");
+        return;
+      }
+
+      setInstructions("Save to Home Screen", [
+        "Open your browser menu.",
+        "Choose <strong>Add to Home Screen</strong> or <strong>Install app</strong>.",
+        "Confirm the save.",
+        "Next time, open the Piston Club voucher from your Home Screen."
+      ]);
+      showHint("top-right");
+    });
+
+    function createManifest() {
+      const svgIcon = encodeURIComponent(`
+        <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+          <rect width="512" height="512" rx="112" fill="#050505"/>
+          <rect x="34" y="34" width="444" height="444" rx="76" fill="none" stroke="#B0914A" stroke-width="14"/>
+          <text x="256" y="184" text-anchor="middle" font-family="Arial, sans-serif" font-size="54" font-weight="900" fill="#fffaf0">THE</text>
+          <text x="256" y="260" text-anchor="middle" font-family="Arial, sans-serif" font-size="64" font-weight="900" fill="#f5c542">P1ST0N</text>
+          <text x="256" y="340" text-anchor="middle" font-family="Arial, sans-serif" font-size="66" font-weight="900" fill="#fffaf0">10%</text>
+        </svg>
+      `);
+
+      const icon = `data:image/svg+xml,${svgIcon}`;
+      const manifest = {
+        name: "The Piston Club 10% Off Voucher",
+        short_name: "P1ST0N 10%",
+        start_url: "./index.html",
+        scope: "./",
+        display: "standalone",
+        background_color: "#050505",
+        theme_color: "#050505",
+        icons: [
+          { src: icon, sizes: "192x192", type: "image/svg+xml", purpose: "any maskable" },
+          { src: icon, sizes: "512x512", type: "image/svg+xml", purpose: "any maskable" }
+        ]
+      };
+
+      const blob = new Blob([JSON.stringify(manifest)], { type: "application/manifest+json" });
+      const manifestUrl = URL.createObjectURL(blob);
+      const link = document.createElement("link");
+      link.rel = "manifest";
+      link.href = manifestUrl;
+      document.head.appendChild(link);
+    }
+
+    createManifest();
+    checkExpiry();
+    configureInstallPrompt();
+  </script>
+</body>
+</html>
